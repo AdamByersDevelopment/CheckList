@@ -8,20 +8,31 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Install Dependencies (if any)
+        run: |
+          if [ -f package.json ]; then
+            npm install
+          fi
+
+      - name: Build Project (if any build step exists)
+        run: |
+          if [ -f package.json ]; then
+            npm run build
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          node-version: '16'
-      
-      - name: Install dependencies
-        run: npm install
-      
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+
       - name: Run linting
-        run: npm run lint || true
+        run: npm run lint
 
       - name: Upload logs
         run: |
